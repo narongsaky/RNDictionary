@@ -1,11 +1,50 @@
 import {TextInput, View, StyleSheet, Text, ScrollView} from "react-native";
 import React, {Component} from 'react';
-
+import ApiService from "./service/api"
 
 export default class Result extends Component {
 
+    apiService = new ApiService();
+
     constructor(props) {
         super(props);
+
+        this.state = {
+            meaning : null,
+            sentence : null,
+        }
+
+    }
+
+
+    componentDidMount(){
+
+        const word = this.props.word;
+        this.apiService.translate(word).then((response) => response.json())
+            .then((responseJson) => {
+                if (responseJson.result === "ok") {
+                    const result = responseJson.tuc.map(item => {
+                        return (item.phrase !== undefined && item.phrase.text !== undefined) ? item.phrase.text : '';
+                    }).filter(item => item !== '');
+                    this.setState(
+                        {
+                            meaning : result
+                        }
+                    );
+                }
+            });
+
+        this.apiService.tm(word).then((response) => response.json())
+            .then((responseJson) => {
+                if (responseJson.result === "ok") {
+                    const result = responseJson.examples;
+                    this.setState(
+                        {
+                            sentence : result
+                        }
+                    );
+                }
+            });
     }
 
 
@@ -15,14 +54,14 @@ export default class Result extends Component {
                 <View style={styles.container}>
                     <Text style={styles.title}>Meaning</Text>
                     <Text style={styles.content}>
-                        {this.props.resultMeaning ? this.props.resultMeaning.map(function (item, i) {
+                        {this.state.meaning ? this.state.meaning.map(function (item, i) {
                             return i !== 0 ? " , " + item : item;
                         }) : null}
                     </Text>
                     <Text style={styles.title}>Sentence</Text>
 
 
-                    {this.props.resultSentence ? this.props.resultSentence.map(function (item, i) {
+                    {this.state.sentence ? this.state.sentence.map(function (item, i) {
                         return (
                             <View style={styles.contentSentence} key={'sentence_' + i}>
                                 <Text key={'first_' + i}>{item.first}</Text>
@@ -40,7 +79,7 @@ export default class Result extends Component {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 0.9,
+        flex: 0.85,
         backgroundColor: '#ffffff'
     },
     title: {

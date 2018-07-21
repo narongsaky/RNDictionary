@@ -10,6 +10,8 @@ import React, {Component} from 'react';
 import {Platform, StyleSheet, Text, View} from 'react-native';
 import Search from "./src/search";
 import Result from "./src/result";
+import SuggestList from "./src/suggest-list";
+import DevelopBy from "./src/develop-by";
 
 const instructions = Platform.select({
     ios: 'Press Cmd+R to reload,\n' + 'Cmd+D or shake for dev menu',
@@ -23,29 +25,40 @@ export default class App extends Component<Props> {
     constructor(props) {
         super(props);
         this.state = {
-            resultMeaning: null,
-            resultSentence: null
+            suggestList: null,
+            word: null,
+            isOpenResult: false
         };
     }
 
 
-    resultMeaningCallback = (result) => {
+    selectedWordCallback = (word) => {
         this.setState({
-            resultMeaning: result
+            word: word,
+            isOpenResult: true
         });
-    }
+    };
 
-    resultSentenceCallback = (result) => {
+    resultSuggestCallback = (result) => {
         this.setState({
-            resultSentence: result
+            suggestList: result,
+            isOpenResult: false
         });
-    }
+    };
 
     render() {
         return (
             <View style={styles.container}>
-                <Search resultMeaning={this.resultMeaningCallback} resultSentence={this.resultSentenceCallback} />
-                <Result resultMeaning={this.state.resultMeaning} resultSentence={this.state.resultSentence}/>
+
+                <Search resultSuggest={this.resultSuggestCallback}/>
+
+                {!this.state.isOpenResult && this.state.suggestList ? <SuggestList selectedWord={this.selectedWordCallback}
+                                                         suggestList={this.state.suggestList}/> : null }
+
+                {this.state.isOpenResult ? <Result word={this.state.word}/> : null }
+
+                {!this.state.suggestList ? <DevelopBy/> : null }
+
             </View>
         );
     }
@@ -53,7 +66,6 @@ export default class App extends Component<Props> {
 
 const styles = StyleSheet.create({
     container: {
-        top: 20,
         flex: 1,
         backgroundColor: '#ffffff',
         flexDirection: 'column'

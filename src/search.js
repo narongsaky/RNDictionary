@@ -14,36 +14,33 @@ export default class Search extends Component {
         };
     }
 
-    search(phrase) {
-        if (phrase) {
-            this.apiService.translate(phrase.toLowerCase()).then((response) => response.json())
+    search(text) {
+        this.setState({text});
+        if (text) {
+
+            const word = text.toLowerCase();
+
+            this.apiService.getSuggestWord(word).then((response) => response.json())
                 .then((responseJson) => {
-                    if (responseJson.result === "ok") {
-                        const result = responseJson.tuc.map(item => {
-                            return (item.phrase !== undefined && item.phrase.text !== undefined) ? item.phrase.text : '';
-                        }).filter(item => item !== '');
-                        this.props.resultMeaning(result);
+                    if (responseJson) {
+                        const result = responseJson.map(item => item.word);
+                        this.props.resultSuggest(result);
                     }
                 });
 
-            this.apiService.tm(phrase.toLowerCase()).then((response) => response.json())
-                .then((responseJson) => {
-                    if (responseJson.result === "ok") {
-                        const result = responseJson.examples;
-                        this.props.resultSentence(result);
-                    }
-                });
+        } else {
+            this.props.resultSuggest(null);
         }
     }
+
 
     render() {
         return (
             <View style={styles.container}>
                 <TextInput
                     style={styles.textSearch}
-                    onChangeText={(text) => this.setState({text})}
+                    onChangeText={(text) => this.search(text)}
                     value={this.state.text}
-                    onEndEditing={() => this.search(this.state.text)}
                 />
             </View>
         );
@@ -54,17 +51,19 @@ export default class Search extends Component {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 0.1,
-        backgroundColor: '#ffffff',
-        flexDirection: 'row'
+        flex: 0.15,
+        backgroundColor: '#f6f6f6',
+        flexDirection: 'row',
     },
     textSearch: {
-        borderColor: 'gray',
-        borderWidth: 1,
+        // borderColor: 'gray',
+        // borderWidth: 0,
         flex: 1,
         alignItems: 'flex-start',
-        margin: 5,
+        margin: 15,
+        marginTop: 35,
         backgroundColor: '#ffffff',
-        height: 40
+        height: 40,
+        fontSize: 15
     }
 });

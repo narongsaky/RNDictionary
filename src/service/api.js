@@ -13,4 +13,8 @@ export default class ApiService {
         return fetch(searchApiPath + '/tm?from=eng&dest=th&format=json&phrase=' + phrase + '&page=1&pretty=true');
     }
 
+    getSuggestWord(word) {
+        return fetch('https://api.datamuse.com/sug?s=' + word);
+    }
+
 }
