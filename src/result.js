@@ -1,6 +1,7 @@
-import {TextInput, View, StyleSheet, Text, ScrollView} from "react-native";
+import {TextInput, View, StyleSheet, Text, ScrollView, ActivityIndicator} from "react-native";
 import React, {Component} from 'react';
 import ApiService from "./service/api"
+import Loading from "./loading";
 
 export default class Result extends Component {
 
@@ -10,14 +11,18 @@ export default class Result extends Component {
         super(props);
 
         this.state = {
-            meaning : null,
-            sentence : null,
+            meaning: null,
+            sentence: null,
+            isLoading: true,
+            isError: true,
+            errorMsg: ''
         }
 
     }
 
 
-    componentDidMount(){
+    componentDidMount() {
+
 
         const word = this.props.word;
         this.apiService.translate(word).then((response) => response.json())
@@ -28,7 +33,16 @@ export default class Result extends Component {
                     }).filter(item => item !== '');
                     this.setState(
                         {
-                            meaning : result
+                            meaning: result,
+                            isLoading: false
+                        }
+                    );
+                } else {
+                    this.setState(
+                        {
+                            isLoading: false,
+                            isError: true,
+                            errorMsg: responseJson.message
                         }
                     );
                 }
@@ -40,7 +54,16 @@ export default class Result extends Component {
                     const result = responseJson.examples;
                     this.setState(
                         {
-                            sentence : result
+                            sentence: result,
+                            isLoading: false
+                        }
+                    );
+                } else {
+                    this.setState(
+                        {
+                            isLoading: false,
+                            isError: true,
+                            errorMsg: responseJson.message
                         }
                     );
                 }
@@ -51,25 +74,34 @@ export default class Result extends Component {
     render() {
         return (
             <ScrollView>
-                <View style={styles.container}>
-                    <Text style={styles.title}>Meaning</Text>
-                    <Text style={styles.content}>
-                        {this.state.meaning ? this.state.meaning.map(function (item, i) {
-                            return i !== 0 ? " , " + item : item;
+
+                { this.state.isLoading ? <View style={styles.container}><Loading/></View> : null}
+
+                { !this.state.isLoading && this.state.isError ?
+                    <View style={styles.container}><Text
+                        style={{textAlign: 'center'}}>{this.state.errorMsg}</Text></View> : null}
+
+                { !this.state.isLoading && !this.state.isError ? (
+                    <View style={styles.container}>
+                        <Text style={styles.title}>Meaning</Text>
+                        <Text style={styles.content}>
+                            {this.state.meaning ? this.state.meaning.map(function (item, i) {
+                                return i !== 0 ? " , " + item : item;
+                            }) : null}
+                        </Text>
+                        <Text style={styles.title}>Sentence</Text>
+                        {this.state.sentence ? this.state.sentence.map(function (item, i) {
+                            return (
+                                <View style={styles.contentSentence} key={'sentence_' + i}>
+                                    <Text key={'first_' + i}>{item.first}</Text>
+                                    <Text key={'second_' + i}>{item.second}</Text>
+                                </View>
+                            )
                         }) : null}
-                    </Text>
-                    <Text style={styles.title}>Sentence</Text>
+                    </View>
+                ) : null}
 
 
-                    {this.state.sentence ? this.state.sentence.map(function (item, i) {
-                        return (
-                            <View style={styles.contentSentence} key={'sentence_' + i}>
-                                <Text key={'first_' + i}>{item.first}</Text>
-                                <Text key={'second_' + i}>{item.second}</Text>
-                            </View>
-                        )
-                    }) : null}
-                </View>
             </ScrollView>
         );
     }

@@ -2,6 +2,7 @@ import {TextInput, View, StyleSheet} from "react-native";
 import React, {Component} from 'react';
 
 const searchApiPath = 'https://glosbe.com/gapi';
+import wordsDictionary from '../../words_dictionary.json';
 
 export default class ApiService {
 
@@ -14,7 +15,7 @@ export default class ApiService {
     }
 
     getSuggestWord(word) {
-        return fetch('https://api.datamuse.com/sug?s=' + word);
+        return wordsDictionary.filter(item => item.indexOf(word) > -1).slice(0, 250);
     }
 
 }

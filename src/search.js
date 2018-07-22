@@ -2,6 +2,7 @@ import {TextInput, View, StyleSheet, Button} from "react-native";
 import React, {Component} from 'react';
 
 import ApiService from "./service/api"
+import Loading from "./loading";
 
 export default class Search extends Component {
 
@@ -15,19 +16,10 @@ export default class Search extends Component {
     }
 
     search(text) {
-        this.setState({text});
         if (text) {
-
             const word = text.toLowerCase();
-
-            this.apiService.getSuggestWord(word).then((response) => response.json())
-                .then((responseJson) => {
-                    if (responseJson) {
-                        const result = responseJson.map(item => item.word);
-                        this.props.resultSuggest(result);
-                    }
-                });
-
+            const result = this.apiService.getSuggestWord(word);
+            this.props.resultSuggest(result);
         } else {
             this.props.resultSuggest(null);
         }
@@ -39,7 +31,7 @@ export default class Search extends Component {
             <View style={styles.container}>
                 <TextInput
                     style={styles.textSearch}
-                    onChangeText={(text) => this.search(text)}
+                    onChangeText={ (text) => this.search(text)}
                     value={this.state.text}
                 />
             </View>

@@ -11,7 +11,7 @@ import {Platform, StyleSheet, Text, View} from 'react-native';
 import Search from "./src/search";
 import Result from "./src/result";
 import SuggestList from "./src/suggest-list";
-import DevelopBy from "./src/develop-by";
+import Loading from "./src/loading";
 
 const instructions = Platform.select({
     ios: 'Press Cmd+R to reload,\n' + 'Cmd+D or shake for dev menu',
@@ -46,18 +46,19 @@ export default class App extends Component<Props> {
         });
     };
 
+
     render() {
         return (
             <View style={styles.container}>
 
                 <Search resultSuggest={this.resultSuggestCallback}/>
 
-                {!this.state.isOpenResult && this.state.suggestList ? <SuggestList selectedWord={this.selectedWordCallback}
-                                                         suggestList={this.state.suggestList}/> : null }
+                {!this.state.isOpenResult && this.state.suggestList ?
+                    <SuggestList selectedWord={this.selectedWordCallback}
+                                 suggestList={this.state.suggestList}/> : null }
 
                 {this.state.isOpenResult ? <Result word={this.state.word}/> : null }
 
-                {!this.state.suggestList ? <DevelopBy/> : null }
 
             </View>
         );
